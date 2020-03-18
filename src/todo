@@ -1,0 +1,2 @@
+1. optimize the max-bottleneck to O(m + n log n) using reference given in paper
+2. fine tune epsilon1 and epsilon2 in the modifier
