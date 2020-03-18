@@ -1,10 +1,12 @@
-struct Edge
-	from::Int
-	to::Int
-	cap
+mutable struct Edge
+	from		# src vertex id {1..n}
+	to			# dest vertex id {1..n}
+	cap			# capacity
+	wt			# weight (used in mult wt)
+	cond		# conductance (used in oracle)
+	flow		# current flow (filled by oracle)
+	acc_flow	# accumulated flow (used in mult wts)
 end
-
-
 
 function Find!(n::Int, dsu::Array{Int64,1})
 	if (dsu[n]==n)
@@ -66,13 +68,13 @@ function change_edges!(s::Int,t::Int,n::Int,m::Int,edge_list::Array{Edge,1},eps)
 	cnt=m;
 	for i in 1:m
 		if (edge_list[i].cap>ub)
-			edge_list[i]=Edge(edge_list[i].from,edge_list[i].to,ub);
+			edge_list[i].cap=ub;
 		end
 		if (edge_list[i].cap<lb)
 			cnt=i-1;
 			break;
 		end
 	end
-	edge_list[1:cnt]
+	(B,edge_list[1:cnt])
 end
 
