@@ -4,6 +4,8 @@ struct Edge
 	cap
 end
 
+
+
 function Find!(n::Int, dsu::Array{Int64,1})
 	if (dsu[n]==n)
 		return n
@@ -16,6 +18,7 @@ function Find!(n::Int, dsu::Array{Int64,1})
 end
 
 function Union!(x::Int,y::Int,dsu::Array{Int64,1},sz::Array{Int64,1})
+	# disjoint set union with path compression and size heuristic O(alpha(n)) per query amortized
 	X=Find!(x,dsu);
 	Y=Find!(y,dsu);
 	if (X==Y)
@@ -33,7 +36,11 @@ function Union!(x::Int,y::Int,dsu::Array{Int64,1},sz::Array{Int64,1})
 end
 
 
+# In all functions s:source, t:sink, n:number of vertices, m:number of edges, edge_list: array of edges
+
 function get_bottleneck!( s::Int,t::Int,n::Int , m::Int , edge_list ::Array{Edge,1} )
+	# returns bottleneck b and also sorts edge_list (pass by reference) in descending order by capacity
+	# complexity O(mlogm) dominated by sorting
 	sort!(edge_list,by = x-> -x.cap);
 	sz=fill(1,n);
 	dsu=[iter for iter in 1:n];
@@ -48,7 +55,6 @@ function get_bottleneck!( s::Int,t::Int,n::Int , m::Int , edge_list ::Array{Edge
 end 
 
 struct Unconnected_Graph <: Exception end
-
 function change_edges!(s::Int,t::Int,n::Int,m::Int,edge_list::Array{Edge,1},eps)
 	B=get_bottleneck!(s,t,n,m,edge_list);
 	if (B==0)
