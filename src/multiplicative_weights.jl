@@ -1,12 +1,4 @@
-mutable struct Edge
-	from		# src vertex id {1..n}
-	to			# dest vertex id {1..n}
-	cap			# capacity
-	wt			# weight (used in mult wt)
-	cond		# conductance (used in oracle)
-	flow		# current flow (filled by oracle)
-	acc_flow	# accumulated flow (used in mult wts)
-end
+include("struct_defs.jl")
 
 function multiplicative_weights(s::Int,t::Int,n::Int,m::Int,flow,edge_list,oracle,eps,rho)
 	for e in edge_list
