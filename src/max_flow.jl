@@ -70,7 +70,7 @@ end
 # returns false for "fail", else returns true
 # Note: flows get corrupted (these are no more needed anyway)
 # even when false is returned
-function oracle!(g::Graph, flow_val::Int64)
+function oracle_1!(g::Graph, flow_val::Int64)
 
 	# sum of wts
 	ws = 0.0
@@ -151,14 +151,13 @@ end
 # successfully approximated with a flow
 # when it returns, the flow in the edges is the computed approx. max flow
 # return type is void
-function binary_search_max_flow!(g::Graph)
+function binary_search_max_flow!(g::Graph, oracle!::Function, rho::Float64)
 	low = g.b
 	high = g.m*g.b
 	# some part of g.eps is for error introduced in binary search over floats
 	eps_bin = g.eps/2.0			# TODO: fine-tune
 	# TODO: should g.eps be adjusted for constant in mult wt algo
 	g.eps = g.eps - eps_bin		# TODO: actually g.eps should be some more for safety
-	rho = 3 * sqrt(m/g.eps)
 	while low + eps_bin*high < high
 		mid = (low + high)/2.0
 		query = mutl_wt!(g, mid, oracle!, rho)
@@ -169,4 +168,55 @@ function binary_search_max_flow!(g::Graph)
 		end
 	end
 	mult_wt!(g, low, oracle!, rho)
+end
+
+# performs all parts in proper sequence
+# flow is modified in the graph itself
+# the graph itself is modified
+function compute_flow!(g::Graph)
+	set_max_bottleneck(g)
+	equiv_graph(g)
+	rho = 3 * sqrt(m/g.eps)
+	oracle! = oracle_1!
+	binary_search_max_flow!(g, oracle!, rho)
+end
+
+# returns flow value of the flow in the given graph
+function compute_flow_val(g::Graph)
+	fv = 0.0
+	for e in g.edges
+		if e.from == g.s
+			fv += e.flow
+		elseif e.to == g.s
+			fv -= e.flow
+		end
+	end
+	return fv
+end
+
+function test_interface!()
+	# take input from stdin
+	g = Graph()
+	g.eps = parse(Float64, split(readline()))
+	g.n, g.m = [parse(Int64, x) for x in split(readline())]
+	g.s, g.t = [parse(Int64, x) for x in split(readline())]
+	g.edges = Array{Edge, 1}(g.m)
+	for e in g.edges
+		inpl = split(readline())
+		e.from = parse(Int64, inpl[1])
+		e.to = parse(Int64, inpl[2])
+		e.cap = parse(Float64, inpl[3])
+	end
+
+	compute_flow!(g)
+
+	# output the flows on the edges
+	# some edges may not be shown, such edges have flow 0
+	for e in g.edges
+		println(g.from, " ", g.to, " ", g.flow)
+	end
+	println()
+
+	# output the flow value
+	println(compute_flow_val(g))
 end
