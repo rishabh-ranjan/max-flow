@@ -194,19 +194,20 @@ function compute_flow_val(g::Graph)
 	return fv
 end
 
-function test_interface!()
+function main()
 	# take input from stdin
-	g = Graph()
-	g.eps = parse(Float64, split(readline()))
-	g.n, g.m = [parse(Int64, x) for x in split(readline())]
-	g.s, g.t = [parse(Int64, x) for x in split(readline())]
-	g.edges = Array{Edge, 1}(g.m)
-	for e in g.edges
+	eps = parse(Float64, split(readline()))
+	n, m = [parse(Int64, x) for x in split(readline())]
+	s, t = [parse(Int64, x) for x in split(readline())]
+	edges = Array{Edge, 1}(m)
+	for e in edges
 		inpl = split(readline())
 		e.from = parse(Int64, inpl[1])
 		e.to = parse(Int64, inpl[2])
 		e.cap = parse(Float64, inpl[3])
 	end
+
+	g = Graph(eps, n, m, s, t, edges, 0.0)
 
 	compute_flow!(g)
 
@@ -220,3 +221,5 @@ function test_interface!()
 	# output the flow value
 	println(compute_flow_val(g))
 end
+
+main()
